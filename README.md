@@ -1,4 +1,4 @@
 # System Monidoro
-## As system monitor/pomodor timer widget built in Python
+## As system monitor/pomodoro timer widget built in Python
 
 # TODO
