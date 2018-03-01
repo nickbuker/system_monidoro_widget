@@ -1,8 +1,13 @@
+# TODO break into functions and possibly classes (organize me)
+
 import sys
 import psutil
 import pygame
 from pygame.locals import *
 
+
+def reset_pomodoro():
+    return 1500, 300, 0
 
 def main():
     """ Script to run the system monitor
@@ -17,22 +22,26 @@ def main():
     pygame.mixer.init()
 
     # set some constants
-    GRAY = (178, 178, 178)
     BLACK = (0, 0, 0)
+    BLUE = (94, 154, 249)
+    DARK_TOMATO = (153, 23, 0)
+    GRAY = (178, 178, 178)
     GREEN = (0, 255, 0)
-    YELLOW = (232, 228, 0)
     ORANGE = (252, 151, 0)
     RED = (255, 0, 0)
-    BLUE = (94, 154, 249)
+    TOMATO = (255, 39, 0)
+    WHITE = (255, 255, 255)
+    YELLOW = (232, 228, 0)
     FPS = 1
     DEFAULT_FONT = pygame.font.get_default_font()
 
     # create some objects
-    Display = pygame.display.set_mode((320, 280))
+    Display = pygame.display.set_mode((320, 230))
     MyFont = pygame.font.Font(DEFAULT_FONT, 16)
     pygame.display.set_caption('System Monitor')
-    beep = pygame.mixer.Sound('beep-3.wav')
-    clock = pygame.time.Clock()
+    Beep = pygame.mixer.Sound('beep.wav')
+    Click = pygame.mixer.Sound('click.wav')
+    Clock = pygame.time.Clock()
 
     def render_rects(percent, v_offset):
         """ renders rectangles illustrating resource usage
@@ -42,7 +51,7 @@ def main():
         percent : float
             percent usage for CPU or memory
         v_offset
-            vertical offset for rectangles (0 for CPU and 85 for memory)
+            vertical offset for rectangles (0 for CPU and 60 for memory)
 
         Returns
         -------
@@ -62,17 +71,22 @@ def main():
                 color = ORANGE
             else:
                 color = RED
-            pygame.draw.rect(Display, color, (10 + i, 10 + v_offset, 12, 50), width)
+            pygame.draw.rect(Display, color, (10 + i, 10 + v_offset, 12, 25), width)
             i += 15
 
-    work_time = 1500
-    rest_time = 300
+    work_time, rest_time, over_time = reset_pomodoro()
+    reset_button = pygame.Rect(190, 145, 90, 60)
     # action loop
     while True:
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    if reset_button.collidepoint(event.pos):
+                        work_time, rest_time, over_time = reset_pomodoro()
+                        Click.play()
         Display.fill(BLACK)
         # CPU usage
         cpu_perc = psutil.cpu_percent()
@@ -80,14 +94,19 @@ def main():
         cpu_text = MyFont.render('CPU usage:  {}%'.format(cpu_perc),
                                  True,
                                  GRAY)
-        Display.blit(cpu_text, (10, 70))
+        Display.blit(cpu_text, (10, 45))
         # memory usage
         mem_perc = psutil.virtual_memory()[2]
-        render_rects(percent=mem_perc, v_offset=85)
+        render_rects(percent=mem_perc, v_offset=60)
         mem_text = MyFont.render('Memory usage:  {}%'.format(mem_perc),
                                  True,
                                  GRAY)
-        Display.blit(mem_text, (10, 155))
+        Display.blit(mem_text, (10, 105))
+
+        pygame.draw.rect(Display, DARK_TOMATO, (190, 145, 90, 60))
+        pygame.draw.rect(Display, TOMATO, (195, 150, 80, 50))
+        reset_text = MyFont.render('RESET', True, WHITE)
+        Display.blit(reset_text, (207, 168))
 
         work_min, work_sec = divmod(work_time, 60)
         if work_sec < 10:
@@ -95,23 +114,33 @@ def main():
         work_time_text = MyFont.render('Work time:  {0}:{1}'.format(work_min, work_sec),
                                   True,
                                   GRAY)
-        Display.blit(work_time_text, (10, 200))
-        rest_min, rest_sec = divmod(rest_time, 60)
-        if rest_sec < 10:
-            rest_sec = '0{}'.format(rest_sec)
-        rest_time_text = MyFont.render('Rest time:  {0}:{1}'.format(rest_min, rest_sec),
-                                       True,
-                                       BLUE)
-        Display.blit(rest_time_text, (10, 230))
+        Display.blit(work_time_text, (10, 150))
+
         if work_time > 0:
             work_time -= 1
-        if work_time == 0 and rest_time == 300:
-            beep.play(3)
-        if work_time == 0:
-            rest_time -= 1
+
+        if work_time >= 0 and rest_time > 0:
+            rest_min, rest_sec = divmod(rest_time, 60)
+            sign = ''
+            if work_time == 0:
+                rest_time -= 1
+        else:
+            rest_min, rest_sec = divmod(over_time, 60)
+            over_time += 1
+            sign = '-'
+        if rest_sec < 10:
+            rest_sec = '0{}'.format(rest_sec)
+        rest_time_text = MyFont.render('Rest time:  {0}{1}:{2}'.format(sign, rest_min, rest_sec),
+                                       True,
+                                       BLUE)
+        Display.blit(rest_time_text, (10, 180))
+
+        if work_time == 0 and rest_time >= 295:
+            Beep.play()
+
         # refresh display
         pygame.display.update()
-        clock.tick(FPS)
+        Clock.tick(FPS)
 
 
 if __name__ == '__main__':
