@@ -6,8 +6,101 @@ import pygame
 from pygame.locals import *
 
 
-def reset_pomodoro():
-    return 1500, 300, 0
+class UsageBar:
+
+    def __init__(self, v_offset):
+        """
+
+        Parameters
+        ----------
+        v_offset
+            vertical offset for rectangles (0 for CPU and 60 for memory)
+        """
+        self.v_offset = v_offset
+
+    def render_rects(self, Display, const, percent):
+        """ renders rectangles illustrating resource usage
+
+        Parameters
+        ----------
+        Display : pygame display object
+            display object into which the usage bar will be rendered
+        const : dict
+            dictionary of constants
+        percent : float
+            percent usage for CPU or memory
+
+        Returns
+        -------
+        None
+        """
+        i = 0
+        for _ in range(20):
+            if 3 * percent > i :
+                width = 0
+            else:
+                width = 1
+            if i < 120:
+                color = const['GREEN']
+            elif i < 180:
+                color = const['YELLOW']
+            elif i < 240:
+                color = const['ORANGE']
+            else:
+                color = const['RED']
+            pygame.draw.rect(Display, color, (10 + i, 10 + self.v_offset, 12, 25), width)
+            i += 15
+
+
+class PomodoroTimer:
+
+    def __init__(self):
+        pass
+
+    def increment_timer(self):
+        pass
+
+    def reset_timer(self):
+        return 1500, 300, 0
+
+
+class SystemMonidoro:
+
+    def __init__(self):
+        # initialize pygame thingies
+        pygame.init()
+        pygame.font.init()
+        pygame.mixer.init()
+        # set some constants
+        self.const = {
+            'BLACK': (0, 0, 0),
+            'BLUE': (94, 154, 249),
+            'DARK_TOMATO': (153, 23, 0),
+            'GRAY': (178, 178, 178),
+            'GREEN': (0, 255, 0),
+            'ORANGE': (252, 151, 0),
+            'RED': (255, 0, 0),
+            'TOMATO': (255, 39, 0),
+            'WHITE': (255, 255, 255),
+            'YELLOW': (232, 228, 0),
+            'FPS': 1,
+            'DEFAULT_FONT': pygame.font.get_default_font()
+        }
+        # create some objects
+        self.Display = pygame.display.set_mode((320, 230))
+        self.MyFont = pygame.font.Font(self.const['DEFAULT_FONT'], 16)
+        pygame.display.set_caption('System Monitor')
+        self.Beep = pygame.mixer.Sound('sounds/beep.wav')
+        self.Click = pygame.mixer.Sound('sounds/click.wav')
+        self.Clock = pygame.time.Clock()
+
+    def monitor_loop(self):
+        pass
+
+
+
+
+
 
 def main():
     """ Script to run the system monitor
@@ -20,27 +113,28 @@ def main():
     pygame.init()
     pygame.font.init()
     pygame.mixer.init()
-
     # set some constants
-    BLACK = (0, 0, 0)
-    BLUE = (94, 154, 249)
-    DARK_TOMATO = (153, 23, 0)
-    GRAY = (178, 178, 178)
-    GREEN = (0, 255, 0)
-    ORANGE = (252, 151, 0)
-    RED = (255, 0, 0)
-    TOMATO = (255, 39, 0)
-    WHITE = (255, 255, 255)
-    YELLOW = (232, 228, 0)
-    FPS = 1
-    DEFAULT_FONT = pygame.font.get_default_font()
+    const = {
+        'BLACK': (0, 0, 0),
+        'BLUE': (94, 154, 249),
+        'DARK_TOMATO': (153, 23, 0),
+        'GRAY': (178, 178, 178),
+        'GREEN': (0, 255, 0),
+        'ORANGE': (252, 151, 0),
+        'RED': (255, 0, 0),
+        'TOMATO': (255, 39, 0),
+        'WHITE': (255, 255, 255),
+        'YELLOW': (232, 228, 0),
+        'FPS': 1,
+        'DEFAULT_FONT': pygame.font.get_default_font()
+    }
 
     # create some objects
     Display = pygame.display.set_mode((320, 230))
     MyFont = pygame.font.Font(DEFAULT_FONT, 16)
     pygame.display.set_caption('System Monitor')
-    Beep = pygame.mixer.Sound('beep.wav')
-    Click = pygame.mixer.Sound('click.wav')
+    Beep = pygame.mixer.Sound('sounds/beep.wav')
+    Click = pygame.mixer.Sound('sounds/click.wav')
     Clock = pygame.time.Clock()
 
     def render_rects(percent, v_offset):
