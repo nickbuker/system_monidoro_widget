@@ -71,6 +71,12 @@ class PomodoroTimer:
         self.Display = Display
 
     def increment_timer(self):
+        """
+        
+        Returns
+        -------
+
+        """
         work_min, work_sec = divmod(self.work_time, 60)
 
         if self.work_time > 0:
@@ -93,6 +99,20 @@ class PomodoroTimer:
         return work_min, work_sec, sign, rest_min, rest_sec
 
     def render_time(self, work_min, work_sec, sign, rest_min, rest_sec):
+        """
+
+        Parameters
+        ----------
+        work_min
+        work_sec
+        sign
+        rest_min
+        rest_sec
+
+        Returns
+        -------
+
+        """
         if work_sec < 10:
             work_sec = '0{}'.format(work_sec)
         if rest_sec < 10:
@@ -109,6 +129,12 @@ class PomodoroTimer:
         self.Display.blit(rest_time_text, (10, 180))
 
     def draw_reset_button(self):
+        """
+
+        Returns
+        -------
+
+        """
         pygame.draw.rect(self.Display, self.CONST['DARK_TOMATO'], (190, 145, 90, 60))
         pygame.draw.rect(self.Display, self.CONST['TOMATO'], (195, 150, 80, 50))
         reset_text = self.MyFont.render('RESET', True, self.CONST['WHITE'])
