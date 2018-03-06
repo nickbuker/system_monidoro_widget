@@ -4,17 +4,18 @@ import pygame
 from pygame.locals import *
 
 
-class ResourceBar:
+class Resource:
 
-    def __init__(self, v_offset):
+    def __init__(self, cpu):
         """
 
         Parameters
         ----------
-        v_offset
-            vertical offset for rectangles (0 for CPU and 60 for memory)
+        cpu : bool
+            True = class is for CPU resources
+            False = class is for memory resourse
         """
-        self.v_offset = v_offset
+        self.cpu = cpu
 
     def render_rects(self, Display, CONST, percent):
         """ renders rectangles illustrating resource usage
@@ -32,6 +33,10 @@ class ResourceBar:
         -------
         None
         """
+        if self.cpu:
+            v_offset = 0
+        else:
+            v_offset = 60
         i = 0
         for _ in range(20):
             if 3 * percent > i :
@@ -46,37 +51,59 @@ class ResourceBar:
                 color = CONST['ORANGE']
             else:
                 color = CONST['RED']
-            pygame.draw.rect(Display, color, (10 + i, 10 + self.v_offset, 12, 25), width)
+            pygame.draw.rect(Display, color, (10 + i, 10 + v_offset, 12, 25), width)
             i += 15
+        return
+
+    def render_resource_text(self, MyFont, perc, CONST, Display):
+        """
+
+        Parameters
+        ----------
+        MyFont
+        perc
+        CONST
+        Display
+
+        Returns
+        -------
+
+        """
+        if self.cpu:
+            usage_text = 'CPU usage:  {}%'
+            v_offset = 45
+        else:
+            usage_text = 'Memory usage:  {}%'
+            v_offset = 105
+        render_text = MyFont.render(usage_text.format(perc),
+                                    True,
+                                    CONST['GRAY'])
+        Display.blit(render_text, (10, v_offset))
+        return
 
 
 class PomodoroTimer:
 
-    def __init__(self, Beep, CONST, MyFont, Display):
+    def __init__(self):
+        """
+
+        """
+        self.work_time = 1500
+        self.rest_time = 300
+        self.over_time = 0
+
+    def increment_timer(self, Beep):
         """
 
         Parameters
         ----------
         Beep
-        CONST
-        MyFont
-        Display
-        """
-        self.work_time = 1500
-        self.rest_time = 300
-        self.over_time = 0
-        self.Beep = Beep
-        self.CONST = CONST
-        self.MyFont = MyFont
-        self.Display = Display
 
-    def increment_timer(self):
-        """
-        
         Returns
         -------
 
         """
+
         work_min, work_sec = divmod(self.work_time, 60)
 
         if self.work_time > 0:
@@ -94,51 +121,68 @@ class PomodoroTimer:
             sign = '-'
 
         if self.work_time == 0 and self.rest_time >= 295:
-            self.Beep.play()
+            Beep.play()
 
         return work_min, work_sec, sign, rest_min, rest_sec
 
-    def render_time(self, work_min, work_sec, sign, rest_min, rest_sec):
+    def render_time_text(self, times, MyFont, CONST, Display):
         """
 
         Parameters
         ----------
-        work_min
-        work_sec
-        sign
-        rest_min
-        rest_sec
+        times : tuple
+            (work_min, work_sec, sign, rest_min, rest_sec)
+        MyFont
+        CONST
+        Display
 
         Returns
         -------
 
         """
+        work_min, work_sec = times[0], times[1]
+        sign = times[2]
+        rest_min, rest_sec = times[3], times[4]
         if work_sec < 10:
             work_sec = '0{}'.format(work_sec)
         if rest_sec < 10:
             rest_sec = '0{}'.format(rest_sec)
 
-        work_time_text = self.MyFont.render('Work time:  {0}:{1}'.format(work_min, work_sec),
-                                                                         True,
-                                                                         self.CONST['GRAY'])
-        self.Display.blit(work_time_text, (10, 150))
+        work_time_text = MyFont.render('Work time:  {0}:{1}'.format(work_min, work_sec),
+                                                                    True,
+                                                                    CONST['GRAY'])
+        Display.blit(work_time_text, (10, 150))
 
-        rest_time_text = self.MyFont.render('Rest time:  {0}{1}:{2}'.format(sign, rest_min, rest_sec),
-                                                                            True,
-                                                                            self.CONST['BLUE'])
-        self.Display.blit(rest_time_text, (10, 180))
+        rest_time_text = MyFont.render('Rest time:  {0}{1}:{2}'.format(sign, rest_min, rest_sec),
+                                                                       True,
+                                                                       CONST['BLUE'])
+        Display.blit(rest_time_text, (10, 180))
+        return
 
-    def draw_reset_button(self):
+    def draw_reset_button(self, Display, CONST, MyFont):
         """
+
+        Parameters
+        ----------
+        Display
+        CONST
+        MyFont
 
         Returns
         -------
 
         """
-        pygame.draw.rect(self.Display, self.CONST['DARK_TOMATO'], (190, 145, 90, 60))
-        pygame.draw.rect(self.Display, self.CONST['TOMATO'], (195, 150, 80, 50))
-        reset_text = self.MyFont.render('RESET', True, self.CONST['WHITE'])
-        self.Display.blit(reset_text, (207, 168))
+        pygame.draw.rect(Display,
+                         CONST['DARK_TOMATO'],
+                         (190, 145, 90, 60))
+        pygame.draw.rect(Display,
+                         CONST['TOMATO'],
+                         (195, 150, 80, 50))
+        reset_text = MyFont.render('RESET',
+                                   True,
+                                   CONST['WHITE'])
+        Display.blit(reset_text, (207, 168))
+        return
 
     def reset_timer(self):
         return 1500, 300, 0
@@ -176,13 +220,10 @@ class SystemMonidoro:
         self.Beep = pygame.mixer.Sound('sounds/beep.wav')
         self.Click = pygame.mixer.Sound('sounds/click.wav')
         self.Clock = pygame.time.Clock()
-        # instantiate some monitor bars and pomodoro timer
-        self.Timer = PomodoroTimer(Beep=self.Beep,
-                                   CONST=self.CONST,
-                                   MyFont=self.MyFont,
-                                   Display=self.Display)
-        self.CPUBar = ResourceBar(v_offset=0)
-        self.MemBar = ResourceBar(v_offset=60)
+        # instantiate pomodoro timer and resource monitors
+        self.Timer = PomodoroTimer()
+        self.CPUResource = Resource(cpu=True)
+        self.MemResource = Resource(cpu=False)
 
     def start_monitor_loop(self):
         """
@@ -208,17 +249,11 @@ class SystemMonidoro:
             # CPU usage
             cpu_perc = psutil.cpu_percent()
             render_rects(percent=cpu_perc, v_offset=0)
-            cpu_text = self.MyFont.render('CPU usage:  {}%'.format(cpu_perc),
-                                          True,
-                                          self.CONST['GRAY'])
-            self.Display.blit(cpu_text, (10, 45))
+
             # memory usage
             mem_perc = psutil.virtual_memory()[2]
             render_rects(percent=mem_perc, v_offset=60)
-            mem_text = self.MyFont.render('Memory usage:  {}%'.format(mem_perc),
-                                          True,
-                                          self.CONST['GRAY'])
-            self.Display.blit(mem_text, (10, 105))
+
 
             pygame.draw.rect(self.Display,
                              self.CONST['DARK_TOMATO'],
