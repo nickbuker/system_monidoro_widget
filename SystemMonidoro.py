@@ -67,7 +67,7 @@ class Resource:
 
         Returns
         -------
-
+        None
         """
         if self.cpu:
             usage_text = 'CPU usage:  {}%'
@@ -138,7 +138,7 @@ class PomodoroTimer:
 
         Returns
         -------
-
+        None
         """
         work_min, work_sec = times[0], times[1]
         sign = times[2]
@@ -230,7 +230,7 @@ class SystemMonidoro:
 
         Returns
         -------
-
+        None
         """
         work_time, rest_time, over_time = self.Timer.reset_timer()
         reset_button = pygame.Rect(190, 145, 90, 60)
@@ -246,6 +246,7 @@ class SystemMonidoro:
                             work_time, rest_time, over_time = self.Timer.reset_timer()
                             self.Click.play()
             self.Display.fill(self.CONST['BLACK'])
+            # TODO
             # CPU usage
             cpu_perc = psutil.cpu_percent()
             render_rects(percent=cpu_perc, v_offset=0)
@@ -254,18 +255,11 @@ class SystemMonidoro:
             mem_perc = psutil.virtual_memory()[2]
             render_rects(percent=mem_perc, v_offset=60)
 
+            self.Timer.draw_reset_button(Display=self.Display,
+                                         CONST=self.CONST,
+                                         MyFont=self.MyFont)
 
-            pygame.draw.rect(self.Display,
-                             self.CONST['DARK_TOMATO'],
-                             (190, 145, 90, 60))
-            pygame.draw.rect(self.Display,
-                             self.CONST['TOMATO'],
-                             (195, 150, 80, 50))
-            reset_text = self.MyFont.render('RESET',
-                                            True,
-                                            self.CONST['WHITE'])
-            self.Display.blit(reset_text, (207, 168))
-
+            # TODO
             work_min, work_sec = divmod(work_time, 60)
             if work_sec < 10:
                 work_sec = '0{}'.format(work_sec)
