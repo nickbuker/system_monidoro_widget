@@ -55,13 +55,13 @@ class Resource:
             i += 15
         return
 
-    def render_resource_text(self, MyFont, perc, CONST, Display):
+    def render_resource_text(self, MyFont, percent, CONST, Display):
         """
 
         Parameters
         ----------
         MyFont
-        perc
+        percent
         CONST
         Display
 
@@ -75,7 +75,7 @@ class Resource:
         else:
             usage_text = 'Memory usage:  {}%'
             v_offset = 105
-        render_text = MyFont.render(usage_text.format(perc),
+        render_text = MyFont.render(usage_text.format(percent),
                                     True,
                                     CONST['GRAY'])
         Display.blit(render_text, (10, v_offset))
@@ -185,7 +185,15 @@ class PomodoroTimer:
         return
 
     def reset_timer(self):
-        return 1500, 300, 0
+        """
+
+        Returns
+        -------
+
+        """
+        self.work_time = 1500
+        self.rest_time = 300
+        self.over_time = 0
 
 
 class SystemMonidoro:
@@ -232,7 +240,6 @@ class SystemMonidoro:
         -------
         None
         """
-        work_time, rest_time, over_time = self.Timer.reset_timer()
         reset_button = pygame.Rect(190, 145, 90, 60)
         # action loop
         while True:
@@ -243,53 +250,36 @@ class SystemMonidoro:
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
                         if reset_button.collidepoint(event.pos):
-                            work_time, rest_time, over_time = self.Timer.reset_timer()
+                            self.Timer.reset_timer()
                             self.Click.play()
             self.Display.fill(self.CONST['BLACK'])
-            # TODO
             # CPU usage
             cpu_perc = psutil.cpu_percent()
-            render_rects(percent=cpu_perc, v_offset=0)
-
+            self.CPUResource.render_rects(Display=self.Display,
+                                          CONST=self.CONST,
+                                          percent=cpu_perc)
+            self.CPUResource.render_resource_text(MyFont=self.MyFont,
+                                                  percent=cpu_perc,
+                                                  CONST=self.CONST,
+                                                  Display=self.Display)
             # memory usage
             mem_perc = psutil.virtual_memory()[2]
-            render_rects(percent=mem_perc, v_offset=60)
-
+            self.MemResource.render_rects(Display=self.Display,
+                                          CONST=self.CONST,
+                                          percent=mem_perc)
+            self.MemResource.render_resource_text(MyFont=self.MyFont,
+                                                  percent=mem_perc,
+                                                  CONST=self.CONST,
+                                                  Display=self.Display)
+            # timer
             self.Timer.draw_reset_button(Display=self.Display,
                                          CONST=self.CONST,
                                          MyFont=self.MyFont)
-
-            # TODO
-            work_min, work_sec = divmod(work_time, 60)
-            if work_sec < 10:
-                work_sec = '0{}'.format(work_sec)
-            work_time_text = self.MyFont.render('Work time:  {0}:{1}'.format(work_min, work_sec),
-                                                True,
-                                                self.CONST['GRAY'])
-            self.Display.blit(work_time_text, (10, 150))
-
-            if work_time > 0:
-                work_time -= 1
-
-            if work_time >= 0 and rest_time > 0:
-                rest_min, rest_sec = divmod(rest_time, 60)
-                sign = ''
-                if work_time == 0:
-                    rest_time -= 1
-            else:
-                rest_min, rest_sec = divmod(over_time, 60)
-                over_time += 1
-                sign = '-'
-            if rest_sec < 10:
-                rest_sec = '0{}'.format(rest_sec)
-            rest_time_text = self.MyFont.render('Rest time:  {0}{1}:{2}'.format(sign, rest_min, rest_sec),
-                                                True,
-                                                self.CONST['BLUE'])
-            self.Display.blit(rest_time_text, (10, 180))
-
-            if work_time == 0 and rest_time >= 295:
-                self.Beep.play()
-
+            times = self.Timer.increment_timer(Beep=self.Beep)
+            self.Timer.render_time_text(times=times,
+                                        MyFont=self.MyFont,
+                                        CONST=self.CONST,
+                                        Display=self.Display)
             # refresh display
             pygame.display.update()
             self.Clock.tick(self.CONST['FPS'])
