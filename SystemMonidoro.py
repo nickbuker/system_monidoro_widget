@@ -13,7 +13,7 @@ class Resource:
         ----------
         cpu : bool
             True = class is for CPU resources
-            False = class is for memory resourse
+            False = class is for memory resources
         """
         self.cpu = cpu
 
