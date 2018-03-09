@@ -7,7 +7,7 @@ from pygame.locals import *
 class Resource:
 
     def __init__(self, cpu):
-        """
+        """ renders resource use bar and text
 
         Parameters
         ----------
@@ -56,14 +56,18 @@ class Resource:
         return
 
     def render_resource_text(self, MyFont, percent, CONST, Display):
-        """
+        """ renders resource use text
 
         Parameters
         ----------
-        MyFont
-        percent
-        CONST
-        Display
+        MyFont : pygame font object
+            font object with which text will be rendered
+        percent : float
+            percent usage for CPU or memory
+        CONST : dict
+            dictionary of constants
+        Display : pygame display object
+            display object into which the usage text will be rendered
 
         Returns
         -------
@@ -85,23 +89,33 @@ class Resource:
 class PomodoroTimer:
 
     def __init__(self):
-        """
+        """ pomodoro timer
 
+        Attributes
+        ----------
+        int : work_time
+            time in seconds for work
+        int : rest_time
+            time in seconds for rest
+        int : over_time
+            time beyond rest time
         """
         self.work_time = 1500
         self.rest_time = 300
         self.over_time = 0
 
     def increment_timer(self, Beep):
-        """
+        """ increments timer by 1 second
 
         Parameters
         ----------
-        Beep
+        Beep : pygame mixer object
+            plays a beep sound to indicate rest time has begun
 
         Returns
         -------
-
+        tuple
+            (work_min, work_sec, sign, rest_min, rest_sec)
         """
 
         work_min, work_sec = divmod(self.work_time, 60)
@@ -126,15 +140,20 @@ class PomodoroTimer:
         return work_min, work_sec, sign, rest_min, rest_sec
 
     def render_time_text(self, times, MyFont, CONST, Display):
-        """
+        """ renders work and rest time text
 
         Parameters
         ----------
-        times : tuple
-            (work_min, work_sec, sign, rest_min, rest_sec)
-        MyFont
-        CONST
-        Display
+        times : tuple (work_min, work_sec, sign, rest_min, rest_sec)
+            minutes and seconds of work time remaining
+            sign of rest time (negative if over rest time)
+            minutes and seconds of rest time remaining
+        MyFont : pygame font object
+            font object with which text will be rendered
+        CONST : dict
+            dictionary of constants
+        Display : pygame display object
+            display object into which the times will be rendered
 
         Returns
         -------
@@ -160,17 +179,20 @@ class PomodoroTimer:
         return
 
     def draw_reset_button(self, Display, CONST, MyFont):
-        """
+        """ renders pomodoro timer reset button
 
         Parameters
         ----------
-        Display
-        CONST
-        MyFont
+        Display : pygame display object
+            display object into which the reset button will be rendered
+        CONST : dict
+            dictionary of constants
+        MyFont : pygame font object
+            font object with which text will be rendered
 
         Returns
         -------
-
+        None
         """
         pygame.draw.rect(Display,
                          CONST['DARK_TOMATO'],
@@ -185,11 +207,11 @@ class PomodoroTimer:
         return
 
     def reset_timer(self):
-        """
+        """ resets the pomodoro timer
 
         Returns
         -------
-
+        None
         """
         self.work_time = 1500
         self.rest_time = 300
@@ -199,8 +221,28 @@ class PomodoroTimer:
 class SystemMonidoro:
 
     def __init__(self):
-        """
+        """ system resource monitor with pomodoro timer
 
+        Attributes
+        ----------
+        CONST : dict
+            dictionary of constants
+        Display : pygame display object
+            display object into which the reset button will be rendered
+        MyFont : pygame font object
+            font object with which text will be rendered
+        Beep : pygame mixer object
+            plays a beep sound to indicate rest time has begun
+        Click : pygame mixer object
+            plays a click sound when the reset button is activated
+        Clock : pygame clock object
+            used to manage frames per second
+        Timer : class
+            instantiated PomodoroTimer class
+        CPUResource : class
+            instantiated Resource class for CPU usage
+        MemResource : class
+            instantiated Resource class for memory usage
         """
         # initialize pygame thingies
         pygame.init()
@@ -234,7 +276,7 @@ class SystemMonidoro:
         self.MemResource = Resource(cpu=False)
 
     def start_monitor_loop(self):
-        """
+        """ runs system monitor and pomodoro timer
 
         Returns
         -------
