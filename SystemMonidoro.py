@@ -260,7 +260,7 @@ class SystemMonidoro:
             'TOMATO': (255, 39, 0),
             'WHITE': (255, 255, 255),
             'YELLOW': (232, 228, 0),
-            'FPS': 1,
+            'FPS': 20,
             'DEFAULT_FONT': pygame.font.get_default_font()
         }
         # create some objects
@@ -284,6 +284,7 @@ class SystemMonidoro:
         """
         reset_button = pygame.Rect(190, 145, 90, 60)
         # action loop
+        i = 0
         while True:
             for event in pygame.event.get():
                 if event.type == QUIT:
@@ -294,37 +295,41 @@ class SystemMonidoro:
                         if reset_button.collidepoint(event.pos):
                             self.Timer.reset_timer()
                             self.Click.play()
-            self.Display.fill(self.CONST['BLACK'])
-            # CPU usage
-            cpu_perc = psutil.cpu_percent()
-            self.CPUResource.render_rects(Display=self.Display,
-                                          CONST=self.CONST,
-                                          percent=cpu_perc)
-            self.CPUResource.render_resource_text(MyFont=self.MyFont,
-                                                  percent=cpu_perc,
-                                                  CONST=self.CONST,
-                                                  Display=self.Display)
-            # memory usage
-            mem_perc = psutil.virtual_memory()[2]
-            self.MemResource.render_rects(Display=self.Display,
-                                          CONST=self.CONST,
-                                          percent=mem_perc)
-            self.MemResource.render_resource_text(MyFont=self.MyFont,
-                                                  percent=mem_perc,
-                                                  CONST=self.CONST,
-                                                  Display=self.Display)
-            # timer
-            self.Timer.draw_reset_button(Display=self.Display,
-                                         CONST=self.CONST,
-                                         MyFont=self.MyFont)
-            times = self.Timer.increment_timer(Beep=self.Beep)
-            self.Timer.render_time_text(times=times,
-                                        MyFont=self.MyFont,
-                                        CONST=self.CONST,
-                                        Display=self.Display)
-            # refresh display
-            pygame.display.update()
+            if i % 20 == 0:
+                self.Display.fill(self.CONST['BLACK'])
+                # CPU usage
+                cpu_perc = psutil.cpu_percent()
+                self.CPUResource.render_rects(Display=self.Display,
+                                              CONST=self.CONST,
+                                              percent=cpu_perc)
+                self.CPUResource.render_resource_text(MyFont=self.MyFont,
+                                                      percent=cpu_perc,
+                                                      CONST=self.CONST,
+                                                      Display=self.Display)
+                # memory usage
+                mem_perc = psutil.virtual_memory()[2]
+                self.MemResource.render_rects(Display=self.Display,
+                                              CONST=self.CONST,
+                                              percent=mem_perc)
+                self.MemResource.render_resource_text(MyFont=self.MyFont,
+                                                      percent=mem_perc,
+                                                      CONST=self.CONST,
+                                                      Display=self.Display)
+                # timer
+                self.Timer.draw_reset_button(Display=self.Display,
+                                             CONST=self.CONST,
+                                             MyFont=self.MyFont)
+                times = self.Timer.increment_timer(Beep=self.Beep)
+                self.Timer.render_time_text(times=times,
+                                            MyFont=self.MyFont,
+                                            CONST=self.CONST,
+                                            Display=self.Display)
+                # refresh display
+                pygame.display.update()
             self.Clock.tick(self.CONST['FPS'])
+            i += 1
+            if i == 20000000:
+                i = 0
 
 
 if __name__ == '__main__':
