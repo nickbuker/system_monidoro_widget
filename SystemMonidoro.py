@@ -51,7 +51,7 @@ class Resource:
                 color = CONST['ORANGE']
             else:
                 color = CONST['RED']
-            pygame.draw.rect(Display, color, (10 + i, 10 + v_offset, 12, 25), width)
+            pygame.draw.rect(Display, color, (10 + i, 10 + v_offset, 12, 20), width)
             i += 15
         return
 
@@ -75,10 +75,10 @@ class Resource:
         """
         if self.cpu:
             usage_text = 'CPU usage:  {}%'
-            v_offset = 45
+            v_offset = 40
         else:
             usage_text = 'Memory usage:  {}%'
-            v_offset = 105
+            v_offset = 100
         render_text = MyFont.render(usage_text.format(percent),
                                     True,
                                     CONST['LIGHT_GRAY'])
@@ -170,12 +170,12 @@ class PomodoroTimer:
         work_time_text = MyFont.render('Work time:  {0}:{1}'.format(work_min, work_sec),
                                                                     True,
                                                                     CONST['LIGHT_GRAY'])
-        Display.blit(work_time_text, (10, 150))
+        Display.blit(work_time_text, (10, 140))
 
         rest_time_text = MyFont.render('Rest time:  {0}{1}:{2}'.format(sign, rest_min, rest_sec),
                                                                        True,
                                                                        CONST['BLUE'])
-        Display.blit(rest_time_text, (10, 180))
+        Display.blit(rest_time_text, (10, 170))
         return
 
     def draw_reset_button(self, Display, CONST, MyFont):
@@ -196,14 +196,14 @@ class PomodoroTimer:
         """
         pygame.draw.rect(Display,
                          CONST['DARK_TOMATO'],
-                         (190, 145, 90, 60))
+                         (190, 135, 90, 60))
         pygame.draw.rect(Display,
                          CONST['TOMATO'],
-                         (195, 150, 80, 50))
+                         (195, 140, 80, 50))
         reset_text = MyFont.render('RESET',
                                    True,
                                    CONST['WHITE'])
-        Display.blit(reset_text, (207, 168))
+        Display.blit(reset_text, (207, 156))
         return
 
     def reset_timer(self):
@@ -257,13 +257,13 @@ class SystemMonidoro:
             'GREEN': (0, 255, 0),
             'ORANGE': (252, 151, 0),
             'RED': (255, 0, 0),
-            'TOMATO': (255, 39, 0),
+            'TOMATO': (240, 39, 0),
             'WHITE': (255, 255, 255),
             'YELLOW': (232, 228, 0),
             'FPS': 20
         }
         # create some objects
-        self.Display = pygame.display.set_mode((320, 230))
+        self.Display = pygame.display.set_mode((320, 215))
         self.MyFont = pygame.font.Font('assets/arial-bold.ttf', 16)
         pygame.display.set_caption('System Monitor')
         self.Beep = pygame.mixer.Sound('assets/beep.wav')
