@@ -81,7 +81,7 @@ class Resource:
             v_offset = 105
         render_text = MyFont.render(usage_text.format(percent),
                                     True,
-                                    CONST['GRAY'])
+                                    CONST['LIGHT_GRAY'])
         Display.blit(render_text, (10, v_offset))
         return
 
@@ -169,7 +169,7 @@ class PomodoroTimer:
 
         work_time_text = MyFont.render('Work time:  {0}:{1}'.format(work_min, work_sec),
                                                                     True,
-                                                                    CONST['GRAY'])
+                                                                    CONST['LIGHT_GRAY'])
         Display.blit(work_time_text, (10, 150))
 
         rest_time_text = MyFont.render('Rest time:  {0}{1}:{2}'.format(sign, rest_min, rest_sec),
@@ -250,25 +250,24 @@ class SystemMonidoro:
         pygame.mixer.init()
         # set some constants
         self.CONST = {
-            'BLACK': (0, 0, 0),
+            'DARK_GRAY': (32, 32, 32),
             'BLUE': (94, 154, 249),
             'DARK_TOMATO': (153, 23, 0),
-            'GRAY': (178, 178, 178),
+            'LIGHT_GRAY': (178, 178, 178),
             'GREEN': (0, 255, 0),
             'ORANGE': (252, 151, 0),
             'RED': (255, 0, 0),
             'TOMATO': (255, 39, 0),
             'WHITE': (255, 255, 255),
             'YELLOW': (232, 228, 0),
-            'FPS': 20,
-            'DEFAULT_FONT': pygame.font.get_default_font()
+            'FPS': 20
         }
         # create some objects
         self.Display = pygame.display.set_mode((320, 230))
-        self.MyFont = pygame.font.Font(self.CONST['DEFAULT_FONT'], 16)
+        self.MyFont = pygame.font.Font('assets/arial-bold.ttf', 16)
         pygame.display.set_caption('System Monitor')
-        self.Beep = pygame.mixer.Sound('sounds/beep.wav')
-        self.Click = pygame.mixer.Sound('sounds/click.wav')
+        self.Beep = pygame.mixer.Sound('assets/beep.wav')
+        self.Click = pygame.mixer.Sound('assets/click.wav')
         self.Clock = pygame.time.Clock()
         # instantiate pomodoro timer and resource monitors
         self.Timer = PomodoroTimer()
@@ -296,7 +295,7 @@ class SystemMonidoro:
                             self.Timer.reset_timer()
                             self.Click.play()
             if i % 20 == 0:
-                self.Display.fill(self.CONST['BLACK'])
+                self.Display.fill(self.CONST['DARK_GRAY'])
                 # CPU usage
                 cpu_perc = psutil.cpu_percent()
                 self.CPUResource.render_rects(Display=self.Display,
