@@ -2,7 +2,7 @@
 ## As system monitor/pomodoro timer widget built in Python
 
 ### About:
-TODO
+This sprang into being from difficulty finding a system monitor and pomodoro timer that I liked and a desire to play with the pygame Python package. It was also an opportunity to play with classes and do a little bit of object oriented programming.
 
 ### Starting and stopping the monitor:
 
@@ -18,14 +18,14 @@ The monitor can be started by navigating to the root directory of this repo and 
 ```
 $ python SystemMonidoro.py
 ```
-
+The monitor can be stoped by hitting cmd-c or control-c in the terminal running the application or by clicking the close window button on the top bar of the monitor.
 
 ### Monitor elements:
-TODO  
+The monitor provides both visual and text information about CPU and memory usage. Work time is the amount of time remaining in the pomodoro work cycle. Rest time is the about of time in the break. Once the work time is exhausted, the monitor beeps 5 times and the rest time starts counting down. Once the rest time has run out, it continues to track time beyond the end of the break (negative rest time).
 
 <img src="images/system_monidoro.png">
  
 ### Resetting timer:
-TODO  
+The timer can be reset by clicking the reset button. You should hear a click sound and the timer should reset to work time 25:00 and rest time 5:00.
 
 <img src="images/system_monidoro_reset.png">
